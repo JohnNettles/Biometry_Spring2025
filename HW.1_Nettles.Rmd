@@ -1,0 +1,184 @@
+---
+title: "Biometry_HW1"
+output: word_document
+date: "2025-01-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+```{r}
+#Read in the data and plot the distribution
+data <- read.csv("ABDLabs/DataForLabs/studentSampleData.csv")
+hist(data$height_cm, breaks=10)
+```
+
+a. Plot the distribution of heights in the class. Describe the shape of the distribution.
+  
+  *Ignoring the outlier of 69, the distribution of heights appears to be roughly symmetric and unimodal.* 
+      
+b. Are there any large outliers that look as though a student used the wrong units for their height measurement?
+  
+  *Yes, there is one value that is substantially smaller than the rest.*
+
+```{r}      
+#filter out any outliers
+library(dplyr)
+data.filter <- data %>% filter(height_cm >= 140)
+```
+
+c. Use R to calculate the mean height of all students in the class, using the filtered data.
+      
+```{r}
+#Calculate mean of filtered data
+mean(data.filter$height_cm)
+```
+d. Use sd() to calculate the standard deviation of height, using the filter data.
+
+```{r}
+#Calculate standard deviation of filtered data
+sd(data.filter$height_cm)
+```
+
+
+## Question 2
+
+```{r}
+caff <- read.csv("ABDLabs/DataForLabs/caffeine.csv")
+```
+
+a. What is the mean amount of caffeine in 16 oz. coffees?
+
+```{r}
+mean(caff$caffeine_mg_16oz)
+```
+
+b. What is the 95% confidence interval for the mean?
+
+```{r}
+t.test(caff$caffeine_mg_16oz)$conf.int
+```
+
+c. Plot the frequency distribution of caffeine levels for these data in a histogram. 
+
+```{r}
+hist(caff$caffeine_mg_16oz)
+```
+
+Is the amount of caffeine in a cup of coffee relatively consistent from one vendor to another? 
+  
+  *No, the amount of caffeine appears to vary widely between brands, ranging from approximately 140mg to almost 260mg.*
+      
+What is the standard deviation of caffeine level? 
+
+```{r}
+sd(caff$caffeine_mg_16oz)
+```
+
+What is the coefficient of variation?
+
+```{r}
+sd(caff$caffeine_mg_16oz)/mean(caff$caffeine_mg_16oz)
+```
+d. The file “caffeineStarbucks.csv” has data on six 16 oz. cups of Breakfast Blend coffee sampled on six different days. 
+  Calculate the mean (and the 95% confidence interval for the mean) for these data. 
+
+```{r}
+starbs <- read.csv("ABDLabs/DataForLabs/caffeineStarbucks.csv")
+mean(starbs$caffeine_mg_16oz)
+t.test(starbs$caffeine_mg_16oz)$conf.int
+```
+Compare these results to the data taken on the broader sample of vendors in the first file. Describe the difference.
+  
+  *The mean of the starbucks data is nearly double that of the broader sample and the 95% confidence interval is over 4 times as wide. Further, the 95% confidence intervals for the two datasets do not  overlap.*
+
+
+
+## Question 3
+
+a. Calculate the 99% confidence interval for the mean caffeine level (for the caffeine data).
+
+```{r}
+t.test(caff$caffeine_mg_16oz,conf.level=0.99)$conf.int
+```
+b. Compare this 99% confidence interval to the 95% confidence interval you calculate in question 2b. 
+  Which confidence interval is wider (i.e., spans a broader range)? Why should this one be wider?
+        
+  *The 99% confidence interval encompasses approximately 8mg more in each direction than does the 95% confidence interval but both are centered around the mean of 188.06mg.*
+  *The 99% confidence interval spans a broader range because it incorporates a greater number of values. Rather than including 95% of the potential true values, it includes 99%.*
+    
+c. Let’s compare the quantiles of the distribution of caffeine to this confidence interval. 
+  Approximately 95% of the data values should fall between the 2.5% and 97.5% quantiles of the distribution of caffeine. (Explain why this is true.)
+  
+  *95% of the data values fall between the 2.5% and 97.5% quartiles because these values describe the data that was collected. These quantiles represent the middle 95% of data values, excluding the 2.5% that    fall at the top and bottom of our distribution.*
+    
+```{r}
+quantile(caff$caffeine_mg_16oz, c(0.025, 0.975))
+```
+Are these the same as the boundaries of the 95% confidence interval? If not, why not? Which should bound a smaller region, the quantile or the confidence interval of the mean?
+
+  *These quantiles are not the same as the boundaries of the 95% confidence interval. This is primarily because the quantiles describe the distribution of our sample while the confidence interval describes      how our sample represents the true value within the population. Confidence intervals should generally bound a smaller region because they don't need to incorporate extreme values that are found within the    population. As we increase our sample size (and capture more of the population in our sample), the 95% confidence interval will typically get narrower since we are getting a better idea of what the true      mean value is. However, assuming we started with a representative sample, the quantile values are less likely to change because they are simply a reflection of the range of values within our data.*
+    
+
+
+## Question 5
+Return to the data on countries of the world, in “countries.csv”. Plot the distributions for ecological_footprint_2000, cell_phone_subscriptions_per_100_people_2012, and life_expectancy_at_birth_female.
+
+Match the difference in mean and median to the direction of skew on the histogram. Do you see a pattern?
+  
+  *When the distribution is skewed right, the mean is greater than the median but when the distribution is skewed left, the median is greater than the mean. The mean is pulled by the tail of the distribution    but the median is drawn to the highest point of the histogram.*
+
+```{r}
+countries <- read.csv("ABDLabs/DataForLabs/countries.csv")
+```
+
+#Ecological footrpint
+```{r}
+hist(countries$ecological_footprint_2000)
+mean(countries$ecological_footprint_2000, na.rm=T)
+median(countries$ecological_footprint_2000, na.rm=T)
+```
+a. Is the variable skewed? If so, in which direction?
+    
+    *The variable appears to be skewed right since there is a long tail to the right. It is important to note that it is bounded on the left by 0 though.*
+
+b. Calculate the mean and median. Are they similar?
+   
+   *The mean and median are not the same. The mean is greater than the median by a factor of approximately 1.47.*
+
+#Cellphone subscriptions
+```{r}
+hist(countries$cell_phone_subscriptions_per_100_people_2012)
+mean(countries$cell_phone_subscriptions_per_100_people_2012, na.rm=T)
+median(countries$cell_phone_subscriptions_per_100_people_2012, na.rm=T)
+```
+a. Is the variable skewed? If so, in which direction?
+
+  *The distribution of cellphone subscriptions appears very slightly skewed left.*
+
+b. Calculate the mean and median. Are they similar?
+
+  *The mean and median are similar but the median is greater by a factor of 1.03.*
+
+#Life expectancy
+```{r}
+hist(countries$life_expectancy_at_birth_female, breaks=10)
+mean(countries$life_expectancy_at_birth_female, na.rm=T)
+median(countries$life_expectancy_at_birth_female, na.rm=T)
+```
+a. Is the variable skewed? If so, in which direction?
+    
+  *The distribution of life expectancy is skewed left.*
+
+b. Calculate the mean and median. Are they similar?
+
+  *The mean and median are similar but the median is greater by a factor of 1.03.*
+
+
+
+
+
+
