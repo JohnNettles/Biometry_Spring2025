@@ -1,0 +1,129 @@
+---
+title: "Biometry_HW2"
+output: word_document
+date: "2025-01-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1
+
+What is the formula for the probability of obtaining any given combination of microbes in your sample of furbies?
+
+  p = (n!)/(Na! * Nb! * Nc! * Nd! * Ne! * Nf!) * Pa^Na * Pb^Nb * Pc^Nc * Pd^Nd * Pe^Ne * Pf^Nf
+    
+    p = probability
+    n = total sample size
+    Nx = number of successes for microbe 'x'
+    Px = probability of success for microbe 'x'
+
+
+
+## Question 2
+
+2a. What is the probability of getting the sampled combination assuming all microbes are equally likely?
+
+```{r}
+
+#Number of ways to get that outcome
+combos <- (factorial(18)/(factorial(2)*factorial(6)*factorial(3)*factorial(4)*factorial(1)*factorial(2)))
+
+#Probability
+p <- (1/6)
+result <- combos*(p^2)*(p^6)*(p^3)*(p^4)*(p^1)*(p^2)
+cat("Probability =", result)
+
+```
+2b. What is the probability of obtaining the sampled combination given the light-furred furby data?
+
+```{r}
+
+result <- combos*(.24^2)*(.14^6)*(.16^3)*(.2^4)*(.13^1)*(.14^2)
+cat("Probability =", result)
+
+```
+2c. What is the probability of obtaining the sampled combination given its the same as the sampled distribution?
+
+```{r}
+
+pa <- 2/18
+pb <- 6/18
+pc <- 3/18
+pd <- 4/18
+pe <- 1/18
+pf <- 2/18
+
+result <- combos*(pa^2)*(pb^6)*(pc^3)*(pd^4)*(pe^1)*(pf^2)
+cat("Probability =", result)
+
+
+```
+2d. Comparing 2a-2c, what distribution of microbes makes your sample of microbes/furbies more likely to have occurred?
+
+  *Based on the above results, the sample-based probability makes our sample of microbes the most likely. This gave the sampled combination a 0.2% chance of occurring.*
+
+
+
+## Question 3
+
+Write a short R script to simulate the combinations of microbes that would have been possible from your sample of furbies, assuming the *F. pallidus* microbe distribution. Use this script to calculate the probability of obtaining the combination you observed.
+
+
+```{r}
+
+#Define population distribution
+library(dplyr)
+pop <- rep(c('A','B','C','D','E','F'),c(24,14,16,20,13,14))
+data <- as.data.frame(matrix(0, ncol=18, nrow=30000))
+
+#Sample a bunch of times
+for(i in 1:30000){
+ data[i,] <- sort(sample(pop,18))
+}
+
+#Count the number of times each combination happens and sort by n
+counts <- add_count(data,V1,V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,V12,V13,V14,V15,V16,V17,V18,sort=T)
+
+#Just include the unique combinations
+counts.u <- unique(counts)
+
+#sum(counts.u$n) #Check our work
+
+head(counts.u)
+
+
+```
+
+## Question 4
+
+According to your simulation, what was the most common combination of colors?
+
+  *The most common combination of colors was 27.8% A (red), 11.1% B (blue), 16.7% C (green), 22.2% D (yellow), 11.1% E (orange), and 11.1% F (brown).*
+  
+
+
+## Question 5
+
+If each sample of furbies had 50 individuals instead of 18, would the sampled combination of microbes be more or less likely to have occurred?
+
+```{r}
+
+#Again with 18
+combos * (.24^2)*(.14^6)*(.16^3)*(.2^4)*(.13^1)*(.14^2)
+
+#Try it with 3x the sample size
+combos2 <- (factorial(54)/(factorial(6)*factorial(18)*factorial(9)*factorial(12)*factorial(3)*factorial(6)))
+combos2 * (.24^6)*(.14^18)*(.16^9)*(.2^12)*(.13^3)*(.14^6)
+
+```
+  *If our sample had 50 furbies instead of 18 furbies,the sampled combination would much less likely to have occurred. Although the number of possible combinations increased dramatically, even fewer      of them satisfy our objective. With a larger sample, the exponents in the second half of the equation get bigger, causing these values to approach 0. No matter how large the number starts out,        multiplying it by nearly 0 makes it very small.*
+
+
+
+## Question 6
+
+In a sample of 20 furbies and the first 19 are all Microbe A, what is the probability that the 20th is also Microbe A?
+
+  *Given the first 19 were Microbe A, the probability of the 20th furby being Microbe A would still be the same. In this case, 0.24.*
