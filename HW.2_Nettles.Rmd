@@ -40,7 +40,7 @@ cat("Probability =", result)
 
 ```{r}
 
-result <- combos*(.24^2)*(.14^6)*(.16^3)*(.2^4)*(.13^1)*(.14^2)
+result <- combos*(.24^2)*(.14^6)*(.16^3)*(.2^4)*(.13^1)*(.13^2)
 cat("Probability =", result)
 
 ```
@@ -75,14 +75,38 @@ Write a short R script to simulate the combinations of microbes that would have 
 
 #Define population distribution
 library(dplyr)
-pop <- rep(c('A','B','C','D','E','F'),c(24,14,16,20,13,14))
-data <- as.data.frame(matrix(0, ncol=18, nrow=30000))
+set.seed(2)
+pop <- rep(c('A','B','C','D','E','F'),c(24,14,16,20,13,13))
+data <- as.data.frame(matrix(NA, ncol=18, nrow=50000)) #For raw sample results
+smry <- as.data.frame(matrix(NA, ncol=6,nrow=50000)) #For a count of each microbe
 
 #Sample a bunch of times
-for(i in 1:30000){
+for(i in 1:50000){
  data[i,] <- sort(sample(pop,18))
-}
+  smry[i,1] <- sum(data[i,]=="A")
+  smry[i,2] <- sum(data[i,]=="B")
+  smry[i,3] <- sum(data[i,]=="C")
+  smry[i,4] <- sum(data[i,]=="D")
+  smry[i,5] <- sum(data[i,]=="E")
+  smry[i,6] <- sum(data[i,]=="F")
 
+}
+smry.counts <- add_count(smry, V1,V2,V3,V4,V5,V6,sort=T) 
+smry.u <- unique(smry.counts)
+head(smry.u)
+
+success <- smry.u %>% filter(V1==2 & V2==6 & V3==3 & V4==4 & V5==1 & V6==2)
+
+cat("Our observed distribution was generated", success[,7], "times out of 50,000. Thus, the probability of obtaining the combination we observed is",success[,7]/50000)
+```
+
+
+## Question 4
+
+According to your simulation, what was the most common combination of colors? What was the probability of this?
+
+
+```{r}
 #Count the number of times each combination happens and sort by n
 counts <- add_count(data,V1,V2,V3,V4,V5,V6,V7,V8,V9,V10,V11,V12,V13,V14,V15,V16,V17,V18,sort=T)
 
@@ -92,15 +116,10 @@ counts.u <- unique(counts)
 #sum(counts.u$n) #Check our work
 
 head(counts.u)
-
-
 ```
 
-## Question 4
 
-According to your simulation, what was the most common combination of colors?
-
-  *The most common combination of colors was 27.8% A (red), 11.1% B (blue), 16.7% C (green), 22.2% D (yellow), 11.1% E (orange), and 11.1% F (brown).*
+  *According to the simulation, the most common combination of colors is 27.8% A (5 red), 11.1% B (2 blue), 16.7% C (3 green), 22.2% D (4 yellow), 11.1% E (2 orange), and 11.1% F (2 brown). The probability of this occurring was 125/50000 or 0.0025.*
   
 
 
