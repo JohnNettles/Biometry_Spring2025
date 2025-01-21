@@ -82,7 +82,7 @@ smry <- as.data.frame(matrix(NA, ncol=6,nrow=50000)) #For a count of each microb
 
 #Sample a bunch of times
 for(i in 1:50000){
- data[i,] <- sort(sample(pop,18),replace=T)
+ data[i,] <- sort(sample(pop,18,replace=T))
   smry[i,1] <- sum(data[i,]=="A")
   smry[i,2] <- sum(data[i,]=="B")
   smry[i,3] <- sum(data[i,]=="C")
