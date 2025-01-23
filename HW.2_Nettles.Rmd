@@ -121,9 +121,6 @@ cat("According to the simulation, the most common combination of colors is 27.8%
 ```
 
 
-  *According to the simulation, the most common combination of colors is 27.8% A (5 red), 11.1% B (2 blue), 16.7% C (3 green), 22.2% D (4 yellow), 11.1% E (2 orange), and 11.1% F (2 brown). The probability of this occurring was 71/50000 or 0.00142.*
-  
-
 
 ## Question 5
 
