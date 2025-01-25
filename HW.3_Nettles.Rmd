@@ -1,0 +1,325 @@
+---
+title: "Biometry_HW3"
+author: "John Nettles"
+date: "2025-01-25"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(MASS)
+```
+
+## Part 1
+
+a) Why is x restricted to x>0?
+
+  *This is because leaf biomass cannot be less than or equal to zero.*
+  
+
+b) Calculate the probability that a leaf has a biomass between 0 and 3 grams. 
+
+```{r}
+
+bmass <- function(x) {
+  2/((x+1)^3)
+}
+
+ans <- integrate(f=bmass,lower=0, upper=3)
+
+```
+  *The probability that a leaf has a biomass between 0 and three grams is `r ans`*
+
+
+
+## Part 2
+
+a) What is the expected value E[X] (i.e., mean) of mites per leaf.
+
+```{r}
+
+mites_per_leaf <- c(0,1,2,3,4,5,6,7,8)
+leaves <- c(70,38,17,10,9,3,2,1,0)
+mites <- rep(mites_per_leaf, leaves)
+
+Ex <- mean(mites)
+
+```
+
+  *The expected value of mites per leaf is `r Ex`.*
+  
+  
+b) What would be the most reasonable value for the Poisson parameter $\lambda$?
+
+  *The most reasonable value for lambda would be the mean value, `r Ex`. This is because in a Poisson distribution, lambda represents the expected value.*
+  
+  
+c) Make a barplot of the values. Is the expected value also the most common?
+
+```{r}
+
+ggplot(data.frame(mites), aes(as.factor(mites))) +
+  geom_bar(fill='darkblue',col='grey') +
+  scale_x_discrete(breaks = seq(from=0,to=8,by=1)) +
+  xlab("Mites per leaf") +
+  ylim(0,80)
+  
+
+```
+
+  *The most common value is 0, not the expected value of approximately 1.15. In this case, the right skew of the distribution pulls the mean above 1.*
+
+
+d) What is the standard deviation of the number of mites per leaf? What is the standard error of the mean? Describe the interpretation of SEM.
+
+```{r}
+
+stdev <- sd(mites)
+
+SEM <- function(SD,n) {
+  SD/sqrt(n)
+}
+
+sterr <- SEM(stdev,150)
+```
+
+  *The standard deviation of the number of mites is `r stde` while the standard error of the mean is `r sterr`. The standard error of the mean is a measure of how well the sample captures the variation in the population, where a larger SEM suggests a higher level of variation between samples with the same methods.*
+  
+  
+
+
+## Part 3
+
+Write a short script to simulate the movement of each animal (forward or backward) on a line. For each animal, simulate 50 individuals , each moving for 100 steps. (Starts at point 0, time step 1).
+
+
+```{r Simulate animal 1}
+#Create empty matrix
+Animal1 <- matrix(NA, nrow=50, ncol=100)
+direction <- matrix(NA, nrow=50, ncol=99)
+magnitude <- matrix(NA, nrow=50, ncol=99)
+movement <- matrix(NA, nrow=50, ncol=99)
+
+#Define first position as 0 for all individuals
+Animal1[,1] <- 0
+
+
+#Simulate movement
+for(i in 2:100) {
+  #Sample from binomial distribution (for each individual) to determine direction of movement. 1 is forward, 0 is backwards.
+  direction[,i-1] <- rbinom(50,1,0.5)
+  
+  
+  #Sample 1 from normal distribution (for each individual) to determine magnitude of movement. 
+  magnitude[,i-1] <- abs(rnorm(50,0,1))
+
+
+  #If direction is forward then movement is just the magnitude. Otherwise, movement is magnitude times negative 1 (backwards).
+  movement[,i-1] <- ifelse(direction[,i-1]==1, movement[,i-1] <- magnitude[,i-1], movement[,i-1] <- magnitude[,i-1]*-1)
+
+
+
+  #Update positions for each individual
+  Animal1[,i] <- Animal1[,i-1] + movement[,i-1]
+  
+}
+
+```
+
+
+```{r Plotting for animal 1}
+#Create vectors with each variable
+Individual <- rep(c(1:50),each=100)
+Timestep <- rep(c(1:100),50)
+Location <- vector()
+
+#Loop all the rows into the same vector
+for(i in 1:nrow(Animal1)){
+  Location <- c(Location,Animal1[i,])
+}
+
+#Create a single data frame
+data <- data.frame(Individual,Timestep,Location)
+
+#Plot that bad boy
+ggplot(data=data, aes(Timestep, Location,group=Individual)) +
+  geom_line(col=Individual) +
+  geom_point(col=Individual,size=0.6) +
+  labs(title="Locations of Animal #1 over 100 timesteps")
+
+#Subset data to just final location
+loc.final <- data %>% filter(Timestep==100)
+
+#Histogram of final locations
+ggplot(data=loc.final, aes(Location)) +
+  geom_histogram(col='grey', fill='darkblue') +
+  scale_x_continuous(breaks = seq(from=-20,to=20,by=2)) +
+  labs(title="Final Locations for Animal #1", y='Counts',x='Final Location')
+
+```
+
+
+Fit a normal distribution to that distribution. What is the estimate of the mean and standard deviation of distance traveled?
+
+```{r Mean and SD for animal 1}
+
+results <- fitdistr(loc.final$Location,densfun='normal')
+
+```
+
+  *The mean distance traveled was `r results$estimate[1]` with a standard deviation of `r results$estimate[2]`.*
+  
+
+
+```{r Simulate animal 2 and plot}
+
+#Create empty matrix
+Animal2 <- matrix(NA, nrow=50, ncol=100)
+direction2 <- matrix(NA, nrow=50, ncol=99)
+magnitude2 <- matrix(NA, nrow=50, ncol=99)
+movement2 <- matrix(NA, nrow=50, ncol=99)
+
+#Define first position as 0 for all individuals
+Animal2[,1] <- 0
+
+
+#Simulate movement
+for(i in 2:100) {
+  #Sample from binomial distribution (for each individual) to determine direction of movement. 1 is forward, 0 is backwards.
+  direction2[,i-1] <- rbinom(50,1,0.6)
+  
+  
+  #Sample 1 from normal distribution (for each individual) to determine magnitude of movement. 
+  magnitude2[,i-1] <- abs(rnorm(50,0,1))
+
+
+  #If direction is forward then movement is just the magnitude. Otherwise, movement is magnitude times negative 1 (backwards).
+  movement2[,i-1] <- ifelse(direction2[,i-1]==1, movement2[,i-1] <- magnitude2[,i-1], movement2[,i-1] <- magnitude2[,i-1]*-1)
+
+
+
+  #Update positions for each individual
+  Animal2[,i] <- Animal2[,i-1] + movement2[,i-1]
+  
+}
+
+
+#Create vectors with each variable
+Individual2 <- rep(c(1:50),each=100)
+Timestep2 <- rep(c(1:100),50)
+Location2 <- vector()
+
+#Loop all the rows into the same vector
+for(i in 1:nrow(Animal2)){
+  Location2 <- c(Location2,Animal2[i,])
+}
+
+#Create a single data frame
+data2 <- data.frame(Individual2,Timestep2,Location2)
+
+#Plot that bad boy
+ggplot(data=data2, aes(Timestep2, Location2,group=Individual2)) +
+  geom_line(col=Individual2) +
+  geom_point(col=Individual2,size=0.6) +
+  scale_y_continuous(breaks=seq(-20,60,5)) +
+  labs(title="Locations of Animal #2 over 100 timesteps", y="Location", x='Timestep')
+
+#Subset data to just final location
+loc.final2 <- data2 %>% filter(Timestep2==100)
+
+#Histogram of final locations
+ggplot(data=loc.final2, aes(Location2)) +
+  geom_histogram(col='grey', fill='darkblue') +
+  scale_x_continuous(breaks = seq(from=-15,to=60,by=5)) +
+  labs(title="Final Locations for Animal #2", y='Counts', x='Final Location')
+
+
+```
+
+Fit a normal distribution to that distribution. What is the estimate of the mean and standard deviation of distance traveled?
+
+```{r Mean and SD for animal 2}
+
+results <- fitdistr(loc.final2$Location2,densfun='normal')
+
+```
+
+  *The mean distance traveled was `r results2$estimate[1]` with a standard deviation of `r results2$estimate[2]`.*
+  
+  
+
+```{r Simulate animal 3 and plot}
+
+#Create empty matrix
+Animal3 <- matrix(NA, nrow=50, ncol=100)
+direction3 <- matrix(NA, nrow=50, ncol=99)
+magnitude3 <- matrix(NA, nrow=50, ncol=99)
+movement3 <- matrix(NA, nrow=50, ncol=99)
+
+#Define first position as 0 for all individuals
+Animal3[,1] <- 0
+
+
+#Simulate movement
+for(i in 2:100) {
+  #Sample from binomial distribution (for each individual) to determine direction of movement. 1 is forward, 0 is backwards.
+  direction3[,i-1] <- rbinom(50,1,0.5)
+  
+  
+  #Sample 1 from normal distribution (for each individual) to determine magnitude of movement. 
+  magnitude3[,i-1] <- abs(rcauchy(50,scale=1))
+
+
+  #If direction is forward then movement is just the magnitude. Otherwise, movement is magnitude times negative 1 (backwards).
+  movement3[,i-1] <- ifelse(direction3[,i-1]==1, movement3[,i-1] <- magnitude3[,i-1], movement3[,i-1] <- magnitude3[,i-1]*-1)
+
+
+
+  #Update positions for each individual
+  Animal3[,i] <- Animal3[,i-1] + movement3[,i-1]
+  
+}
+
+
+#Create vectors with each variable
+Individual3 <- rep(c(1:50),each=100)
+Timestep3 <- rep(c(1:100),50)
+Location3 <- vector()
+
+#Loop all the rows into the same vector
+for(i in 1:nrow(Animal3)){
+  Location3 <- c(Location3,Animal3[i,])
+}
+
+#Create a single data frame
+data3 <- data.frame(Individual3,Timestep3,Location3)
+
+#Plot that bad boy
+ggplot(data=data3, aes(Timestep3, Location3,group=Individual3)) +
+  geom_line(col=Individual3) +
+  geom_point(col=Individual3,size=0.6) +
+  scale_y_continuous(breaks=seq(-2000,1000,250)) +
+  labs(title="Locations of Animal #3 over 100 timesteps", y='Location', x='Timestep')
+
+#Subset data to just final location
+loc.final3 <- data3 %>% filter(Timestep3==100)
+
+#Histogram of final locations
+ggplot(data=loc.final3, aes(Location3)) +
+  geom_histogram(col='grey', fill='darkblue') +
+  scale_x_continuous(breaks = seq(from=-2000,to=1000,by=250)) +
+  labs(title="Final Locations for Animal #3", y='Counts')
+
+
+```
+
+Is the resulting distribution still normally distributed? If not, how does it differ?
+
+  *The resulting distribution appears normal right around zero but if you look farther out along the x-axis, the tails are much heavier than we would expect. Given the height of the distribution around 0, we would expect the probability density to approach zero very quickly, instead, due to the nature of the Cauchy distribution, there are still several individuals with values dramatically above or below 0.*
+  
+  
+  
+  
+  
