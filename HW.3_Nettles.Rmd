@@ -30,7 +30,8 @@ bmass <- function(x) {
 ans <- integrate(f=bmass,lower=0, upper=3)
 
 ```
-  *The probability that a leaf has a biomass between 0 and three grams is `r ans`*
+  
+  *The probability that a leaf has a biomass between 0 and three grams is 0.9375*
 
 
 
@@ -48,12 +49,12 @@ Ex <- mean(mites)
 
 ```
 
-  *The expected value of mites per leaf is `r Ex`.*
+  *The expected value of mites per leaf is 1.1467.*
   
   
 b) What would be the most reasonable value for the Poisson parameter $\lambda$?
 
-  *The most reasonable value for lambda would be the mean value, `r Ex`. This is because in a Poisson distribution, lambda represents the expected value.*
+  *The most reasonable value for lambda would be the mean value, 1.1467. This is because in a Poisson distribution, lambda represents the expected value.*
   
   
 c) Make a barplot of the values. Is the expected value also the most common?
@@ -85,7 +86,7 @@ SEM <- function(SD,n) {
 sterr <- SEM(stdev,150)
 ```
 
-  *The standard deviation of the number of mites is `r stde` while the standard error of the mean is `r sterr`. The standard error of the mean is a measure of how well the sample captures the variation in the population, where a larger SEM suggests a higher level of variation between samples with the same methods.*
+  *The standard deviation of the number of mites is 1.508 while the standard error of the mean is 0.123.The standard error of the mean is a measure of how well the sample captures the variation in the population, where a larger SEM suggests a higher level of variation (SD) between samples with the same methods.*
   
   
 
@@ -93,6 +94,8 @@ sterr <- SEM(stdev,150)
 ## Part 3
 
 Write a short script to simulate the movement of each animal (forward or backward) on a line. For each animal, simulate 50 individuals , each moving for 100 steps. (Starts at point 0, time step 1).
+
+## Animal 1
 
 
 ```{r Simulate animal 1}
@@ -169,8 +172,10 @@ results <- fitdistr(loc.final$Location,densfun='normal')
 
 ```
 
-  *The mean distance traveled was `r results$estimate[1]` with a standard deviation of `r results$estimate[2]`.*
+  *The mean distance traveled was 0.944 with a standard deviation of 10.121.*
   
+  
+## Animal 2
 
 
 ```{r Simulate animal 2 and plot}
@@ -242,13 +247,15 @@ Fit a normal distribution to that distribution. What is the estimate of the mean
 
 ```{r Mean and SD for animal 2}
 
-results <- fitdistr(loc.final2$Location2,densfun='normal')
+results2 <- fitdistr(loc.final2$Location2,densfun='normal')
 
 ```
 
-  *The mean distance traveled was `r results2$estimate[1]` with a standard deviation of `r results2$estimate[2]`.*
+  *The mean distance traveled was 14.845 with a standard deviation of 9.507.*
   
   
+## Animal 3  
+
 
 ```{r Simulate animal 3 and plot}
 
@@ -300,7 +307,7 @@ data3 <- data.frame(Individual3,Timestep3,Location3)
 ggplot(data=data3, aes(Timestep3, Location3,group=Individual3)) +
   geom_line(col=Individual3) +
   geom_point(col=Individual3,size=0.6) +
-  scale_y_continuous(breaks=seq(-2000,1000,250)) +
+  scale_y_continuous(breaks=seq(-100000,100000,500)) +
   labs(title="Locations of Animal #3 over 100 timesteps", y='Location', x='Timestep')
 
 #Subset data to just final location
@@ -309,7 +316,7 @@ loc.final3 <- data3 %>% filter(Timestep3==100)
 #Histogram of final locations
 ggplot(data=loc.final3, aes(Location3)) +
   geom_histogram(col='grey', fill='darkblue') +
-  scale_x_continuous(breaks = seq(from=-2000,to=1000,by=250)) +
+  scale_x_continuous(breaks = seq(from=-100000,to=100000,by=500)) +
   labs(title="Final Locations for Animal #3", y='Counts')
 
 
